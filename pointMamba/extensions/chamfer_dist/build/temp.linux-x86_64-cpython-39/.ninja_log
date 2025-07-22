@@ -1,0 +1,3 @@
+# ninja log v5
+1	27610	1751309824000000000	/home/u202320081001061/PointMamba/extensions/chamfer_dist/build/temp.linux-x86_64-cpython-39/chamfer_cuda.o	bafac058b2945f4a
+0	54671	1751309851000000000	/home/u202320081001061/PointMamba/extensions/chamfer_dist/build/temp.linux-x86_64-cpython-39/chamfer.o	f1df7ef48cd7888b
