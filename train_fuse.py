@@ -171,7 +171,7 @@ class TGS(torch.nn.Module, SaverMixin):
 
         # self.tokenizer = tgs.find(self.cfg.tokenizer_cls)(self.cfg.tokenizer)
 
-        self.backbone = tgs.find(self.cfg.backbone_cls)(self.cfg.backbone)
+        # self.backbone = tgs.find(self.cfg.backbone_cls)(self.cfg.backbone)
 
         self.post_processor = tgs.find(self.cfg.post_processor_cls)(
             self.cfg.post_processor
