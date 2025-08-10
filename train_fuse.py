@@ -169,9 +169,9 @@ class TGS(torch.nn.Module, SaverMixin):
 
         # self.image_feature = ImageFeature(self.cfg.image_feature)
 
-        # self.tokenizer = tgs.find(self.cfg.tokenizer_cls)(self.cfg.tokenizer)
+        self.tokenizer = tgs.find(self.cfg.tokenizer_cls)(self.cfg.tokenizer)
 
-        # self.backbone = tgs.find(self.cfg.backbone_cls)(self.cfg.backbone)
+        self.backbone = tgs.find(self.cfg.backbone_cls)(self.cfg.backbone)
 
         self.post_processor = tgs.find(self.cfg.post_processor_cls)(
             self.cfg.post_processor
@@ -189,8 +189,8 @@ class TGS(torch.nn.Module, SaverMixin):
         self.FuseNet = tgs.find(self.cfg.fuser_cls)(self.cfg.fuser)
 
         # self.UnetFeature = UNet(9, 128)
-        self.triplaneGenerator = ImageTriplaneGenerator(grid_size=128, feature_channels=228)
-        self.pointTriplaneGenerator = PointTriplaneGenerator(128, in_channels=384, out_channels=228)
+        # self.triplaneGenerator = ImageTriplaneGenerator(grid_size=128, feature_channels=256)
+        self.pointTriplaneGenerator = PointTriplaneGenerator(128, in_channels=384, out_channels=256)
         
         # 冻结除了FuseNet之外的所有网络参数
         # for name, param in self.named_parameters():
@@ -219,11 +219,11 @@ class TGS(torch.nn.Module, SaverMixin):
 
         self.pointNet = Pointnet2()
 
-        self.camera_norm = torch.nn.LayerNorm(32)
+        self.camera_norm = torch.nn.LayerNorm(60)
 
         self.GS_embedder = MLP(dim_in=56, dim_out=64, n_neurons=128, n_hidden_layers=2)
 
-        self.triplane_gate = MLP(dim_in=228 * 2, dim_out=1, n_neurons=228, n_hidden_layers=2, output_activation="sigmoid")
+        self.triplane_gate = MLP(dim_in=256 * 2, dim_out=1, n_neurons=256, n_hidden_layers=2, output_activation="sigmoid")
 
         config = cfg_from_yaml_file('pointMamba/cfgs/test.yaml')
 
@@ -399,7 +399,7 @@ class TGS(torch.nn.Module, SaverMixin):
 
                 original_size = batch["rgb_cond"][id].shape[-2:]  # 获取原始图像的高度和宽度
 
-                image_features = torch.nn.functional.interpolate(
+                image_features_up = torch.nn.functional.interpolate(
                     image_features.flatten(0, 1),  # 将B和Nv维度合并
                     size=original_size,
                     mode='bilinear',
@@ -432,8 +432,9 @@ class TGS(torch.nn.Module, SaverMixin):
         # # print(image_features.size())
         proj_feats = None
 
-        proj_feats = points_projection_with_score_chunked(batch["opt_point_cloud"][id], camera_extri, camera_intri, image_features, batch["ply_score"][id])
+        proj_feats = points_projection_with_score_chunked(batch["opt_point_cloud"][id], camera_extri, camera_intri, image_features_up, batch["ply_score"][id])
 
+        input_image_tokens = rearrange(image_features, "B Nv C H W -> B C (Nv H W)", B = batch_size)
         # del image_features  # 释放投影前的特征显存
         # torch.cuda.empty_cache()  # 再次清理缓存
         # # 5GB
@@ -444,14 +445,15 @@ class TGS(torch.nn.Module, SaverMixin):
         # point_cond_embeddings = self.point_encoder(torch.cat([pointclouds, GS_feats], dim=-1))
         # 7GB
         #print(point_cond_embeddings)
-        # tokens: Float[Tensor, "B Ct Nt"] = self.tokenizer(batch_size, cond_embeddings=point_cond_embeddings)
 
-        # tokens = self.backbone(
-        #     tokens,
-        #     encoder_hidden_states=input_image_tokens,
-        #     modulation_cond=None,
-        # )
+        tokens: Float[Tensor, "B Ct Nt"] = self.tokenizer(batch_size)
 
+        tokens = self.backbone(
+            tokens,
+            encoder_hidden_states=input_image_tokens,
+            modulation_cond=None,
+        )
+        image_scene_codes = self.tokenizer.detokenize(tokens)
         # scene_codes = self.post_processor(self.tokenizer.detokenize(tokens)) #转换为三平面并上采样
         # rend_out = self.renderer(scene_codes,
         #                         query_points=pointclouds,
@@ -471,17 +473,17 @@ class TGS(torch.nn.Module, SaverMixin):
         central_point_feature, dense_point_feature, weight = self.PM_model(point_feats)
 
         # end_timer("point_feat")
-        depth = batch["depth"]
-        c2w = batch["c2w"]
-        intrinsic = batch["intrinsic"]
-        
-        sample_grid = torch.exp(batch["scales"][id].mean())
+        # depth = batch["depth"]
+        # c2w = batch["c2w"]
+        # intrinsic = batch["intrinsic"]
+
+        # sample_grid = torch.exp(batch["scales"][id].mean())
 
 ###############################################################
         # padding = torch.zeros([1, 10, 225, 242, 324]).cuda()
         # image_features = torch.cat([batch['rgb_cond'][id], padding], dim=2)
 
-        image_scene_codes, scene_bounds = self.triplaneGenerator(image_features, depth_cond, camera_extri, camera_intri, depth, c2w, intrinsic, sample_grid, scene_bounds)
+        #image_scene_codes, scene_bounds = self.triplaneGenerator(image_features, depth_cond, camera_extri, camera_intri, depth, c2w, intrinsic, sample_grid, scene_bounds)
 
 ###############################################################
         # local_point_feature = rearrange(local_point_feature, 'B C N -> B N C')

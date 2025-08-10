@@ -310,7 +310,7 @@ class GS3DRenderer(BaseModule):
         random_background: bool = False
         radius: float = 1.0
         feature_reduction: str = "concat"
-        projection_feature_dim: int = 292
+        projection_feature_dim: int = 260
         background_color: Tuple[float, float, float] = field(
             default_factory=lambda: (1.0, 1.0, 1.0)
         )
@@ -319,9 +319,9 @@ class GS3DRenderer(BaseModule):
 
     def configure(self, *args, **kwargs) -> None:
         if self.cfg.feature_reduction == "mean":
-            mlp_in = 228
+            mlp_in = 256
         elif self.cfg.feature_reduction == "concat":
-            mlp_in = 228 * 3
+            mlp_in = 256 * 3
         else:
             raise NotImplementedError
         mlp_in = mlp_in + self.cfg.projection_feature_dim
