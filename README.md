@@ -40,7 +40,7 @@ TriplaneGS-Fuser可以在几秒内完成高质量的融合
 
 + 多模态（连续和离散表示）的融合
 
-<img src="assets/score.png" alt="image-20250810181651613" width="50%" /><img src="assets/fuse.png" alt="image-20250810181730184" width="33%" />
+<img src="assets/score.png" alt="image-20250810181651613" width="50%" style="margin-right: 20px;" /><img src="assets/fuse.png" alt="image-20250810181730184" width="33%" />
 
 + 基于点组分布高斯化的三平面建构
 
