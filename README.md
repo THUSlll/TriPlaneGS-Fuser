@@ -1,6 +1,6 @@
 # TriplaneGS-Fuser: Fuse the GS models of several parts within a few seconds
 
-![image-20250810181907962](https://github.com/THUSlll/TriPlaneGS-Fuser/pipeline.png)
+![image-20250810181907962](assets/pipeline.png)
 
 ## TriplaneGS-Fuser
 
@@ -28,23 +28,23 @@ ScanNet-GSReg数据集的定量结果
 
 TriplaneGS-Fuser可以在几秒内完成高质量的融合
 
-![image-20250810181351586](https://github.com/THUSlll/TriPlaneGS-Fuser/nerf.png)
+![image-20250810181351586](assets/nerf.png)
 
-![image-20250810181411469](https://github.com/THUSlll/TriPlaneGS-Fuser/scannet.png)
+![image-20250810181411469](assets/scannet.png)
 
 ## 🔧 核心改进 (Key Improvements)
 
 + 同3DGS的Splatting渲染RGB图类似，使用Splatting渲染特征三平面
 
-![image-20250810181506320](https://github.com/THUSlll/TriPlaneGS-Fuser/triplane.png)
+![image-20250810181506320](assets/triplane.png)
 
 + 多模态（连续和离散表示）的融合
 
-<img src="https://github.com/THUSlll/TriPlaneGS-Fuser/score.png" alt="image-20250810181651613" style="zoom:50%;" /><img src="https://github.com/THUSlll/TriPlaneGS-Fuser/fuse.png" alt="image-20250810181730184" style="zoom: 33%;" />
+<img src="assets/score.png" alt="image-20250810181651613" style="zoom:50%;" /><img src="assets/fuse.png" alt="image-20250810181730184" style="zoom: 33%;" />
 
 + 基于点组分布高斯化的三平面建构
 
-<img src="https://github.com/THUSlll/TriPlaneGS-Fuser/point.png" alt="image-20250810181958236" style="zoom:33%;" />
+<img src="assets/point.png" alt="image-20250810181958236" style="zoom:33%;" />
 
 ## 🚀 使用 (Usage)
 
